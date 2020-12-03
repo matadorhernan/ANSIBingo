@@ -44,13 +44,9 @@ bool isFile(string filename)
   bool valid = false;     //iniciamos esperando el fracaso
   fstream file(filename); //el archivo filename en buffer
   //si se puede abrir
-  if (file.is_open())
-  {
-    //bandera que estaba en fracaso ahora es de exito
-    valid = true;
+  if ((valid = file.is_open()))
     //lo cierra para que no haya errores
     file.close();
-  }
   return valid; //retorna si el archivo se pude abrir
 }
 

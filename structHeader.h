@@ -18,6 +18,8 @@
 #include <climits>
 #include <cctype> //isspace
 
+#define REFRESH_RATE 200
+
 //namespaces
 using namespace std; //mala practica al importar el namespace std hacia el global namespace
 

@@ -208,7 +208,7 @@ bool bingoCore(BingoGame &game)
             displayCards(game.players[0], game.players[1]);
 
             //presentar el numero que sale
-            callNumber("Salio el numero ", game.numbers, i, 50);
+            callNumber("Salio el numero ", game.numbers, i, REFRESH_RATE);
 
             //mostrar tarjetas
             displayCards(game.players[0], game.players[1]);
@@ -357,18 +357,11 @@ bool checkPlayerVictory(Player &player, GameType gametype)
     bool ended = false;
 
     //cuantos aciertos
-    int scoredNumber = 0;
-    int rscoredNumber = 0;
-
     //cuantos puntos
-    int rscore = 0;
-    int score = 0;
-
     //cuantas filas horizontales completa para cartas normales
-    int scoredrows = 0;
-
     //valor central para diagonales simetricas
-    int center = 0;
+    int scoredNumber, rscoredNumber, rscore, score, scoredrows, center;
+    scoredNumber = rscoredNumber = rscore = score = scoredrows = center = 0;
 
     int ri = player.card.height - 1;
     for (int i = 0; i < player.card.height; i++)

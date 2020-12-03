@@ -26,16 +26,8 @@ int getRandomIntInRange(int min, int max)
   */
 int getUnformattedANSINumber(string formattedANSINumber)
 {
-  int unformattedNumber = 0;
-
   StringVector tokens = splitString("m", formattedANSINumber);
-
-  if (tokens.lineCount == 0)
-    unformattedNumber = stoi(formattedANSINumber);
-  else
-    unformattedNumber = stoi(tokens.content[1]);
-
-  return unformattedNumber;
+  return tokens.lineCount == 0 ? stoi(formattedANSINumber) : stoi(tokens.content[1]);
 }
 
 /**

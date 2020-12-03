@@ -78,9 +78,7 @@ void getCardFromVector(StringMatrix &card, IntVector vector, int numbersPerColum
         aux.content = new string[card.width];
 
         for (int j = 0; j < card.width; j++)
-        {
             aux.content[j] = to_string((j < numbersPerColumn) ? vector.content[j + (i * numbersPerColumn) + skip] : 0);
-        }
 
         shuffleStringVector(aux);
 
