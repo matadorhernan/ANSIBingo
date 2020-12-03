@@ -68,7 +68,7 @@ void displayReport(Player player, Point point)
                     l++;
                 }
                 //Lista de numeros A
-                gotoxy({point.x + (4 * (k)) + 20, point.y + 4 + l});
+                gotoxy({point.x + (4 * (k)) + 20, point.y + 3 + l});
                 cout << left << setw(4) << player.scored.content[i][j];
                 //conteo de aciertos A
 
@@ -84,11 +84,8 @@ void displayReport(Player player, Point point)
     gotoxy({point.x, point.y + 2});
     cout << left << setw(20)
          << "Aciertos: " << player.scoredCount;
-    gotoxy({point.x, point.y + 3});
-    cout << left << setw(20)
-         << "Puntos: " << player.score;
 
-    gotoxy({point.x, point.y + 4});
+    gotoxy({point.x, point.y + 3});
     cout << left << setw(20)
          << "Lista de Numeros: ";
 }

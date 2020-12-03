@@ -53,7 +53,7 @@ void handleStats(BingoGame &game);
 int main(int argc, char const *argv[])
 {
     //song se lo quite porque aburre
-    mciSendString(TEXT("play resources\\all.mp3 repeat"), NULL, 0, NULL);
+    // mciSendString(TEXT("play resources\\all.mp3 repeat"), NULL, 0, NULL);
 
     //para los rand()
     srand(time(NULL));
