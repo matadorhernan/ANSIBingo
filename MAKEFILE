@@ -1,0 +1,26 @@
+# Makefile for Bingo Inc.
+
+# *****************************************************
+
+CXX = g++
+CXXFLAGS = -Wall -g
+LDFLAGS = -lwinmm
+
+# ****************************************************
+
+bingo:
+    $(CXX) $(CXXFLAGS)  utilities/utilities.cpp \
+    utilities/fileUtilities.cpp \
+    utilities/vectorUtilities.cpp \
+    validators/validators.cpp \
+    views/views.cpp \
+    views/watermark/watermarkviews.cpp \
+    views/menu/menuviews.cpp \
+    views/alias/aliasviews.cpp \
+    views/card/cardviews.cpp \
+    main.cpp \
+    -o bingo \
+    $(LDFLAGS) \
+    && bingo.exe
+
+

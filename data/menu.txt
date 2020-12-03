@@ -1,0 +1,6 @@
+Ingresar alias de los jugadores
+Modo una linea Horizontal
+Modo toda la carta
+Modo una diagonal principal
+Estadisticas
+Salir

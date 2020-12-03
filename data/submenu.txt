@@ -1,0 +1,6 @@
+Todas las registradas
+Por jugador
+Por modo horizontal
+Por modo carta completa
+Por modo una diagonal principal
+Regresar
