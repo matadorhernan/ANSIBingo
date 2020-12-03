@@ -136,10 +136,13 @@ StringVector splitString(string delimiter, string text)
   * @return string * un rectangulo linea por linea como vector de strings
   * 
   */
-string *stringRectangle(Area area, int style)
+StringVector stringRectangle(Area area, int style)
 {
   //aqui vamos a dibujar los renglones que se ocupan para el rectangulo
-  string *canvas = new string[area.height];
+  StringVector canvas;
+  canvas.lineCount = area.height;
+  canvas.content = new string[area.height];
+
   //un guard para que el style no deje de ser 2 o 1, el 1 es default
   style = (style != 2 && style != 1) ? 0 : (style - 1) * 6;
 
@@ -166,14 +169,14 @@ string *stringRectangle(Area area, int style)
   string Fill(area.width - 2, ' ');
 
   //el borde horizontal superior
-  canvas[0] = box[style] + Line + box[style + 1] + '\n';
+  canvas.content[0] = box[style] + Line + box[style + 1] + '\n';
 
   //los bordes verticales y el fill
   for (int a = 1; a < area.height - 1; a++)
-    canvas[a] = box[style + 4] + Fill + box[style + 4] + '\n';
+    canvas.content[a] = box[style + 4] + Fill + box[style + 4] + '\n';
 
   //el borde horizontal inferior
-  canvas[area.height - 1] = box[style + 2] + Line + box[style + 3];
+  canvas.content[area.height - 1] = box[style + 2] + Line + box[style + 3];
 
   //rectangulo construido
   return canvas;

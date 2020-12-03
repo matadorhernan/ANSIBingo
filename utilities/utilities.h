@@ -6,13 +6,14 @@
 #include "../structHeader.h"
 
 //forward funciones utiles
-int getRandomIntInRange(int min, int max);
-int getUnformattedANSINumber(string formattedANSINumber);
-string getTimeStamp();
 void gotoxy(Point point);
+int getRandomIntInRange(int min, int max);
+
+string getTimeStamp();
 string colorANSI(string text, int format, int foreground, int background);
+int getUnformattedANSINumber(string formattedANSINumber);
 StringVector splitString(string delimiter, string text);
-string *stringRectangle(Area area, int style);
+StringVector stringRectangle(Area area, int style);
 
 //forward vector utilities
 void shuffleIntVector(IntVector &vector);

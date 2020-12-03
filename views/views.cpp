@@ -63,16 +63,21 @@ void displayFrame(string title)
 
   //variables para graficos
   Area fullScreen = {147, 37}; //la consola mide
-  string *frame = stringRectangle(fullScreen, 1);
-  string *header = stringRectangle({fullScreen.width - 4, 4}, 2);
-  string *body = stringRectangle({fullScreen.width - 4, fullScreen.height - 11}, 2);
-  string *footer = stringRectangle({fullScreen.width - 4, 5}, 1);
+
+  //el borde que rodea todo
+  StringVector frame = stringRectangle(fullScreen, 1);
+  //el borde de el header en rojo
+  StringVector header = stringRectangle({fullScreen.width - 4, 4}, 2);
+  //el borde de el body doble borde
+  StringVector body = stringRectangle({fullScreen.width - 4, fullScreen.height - 11}, 2);
+  //el borde de el input
+  StringVector footer = stringRectangle({fullScreen.width - 4, 5}, 1);
 
   //imprimir rectangulo frame <<el marco de todos los rectangulos>>
   for (int i = 0; i < fullScreen.height; i++)
   {
     gotoxy({0, i});
-    cout << frame[i];
+    cout << frame.content[i];
   }
 
   //imprimir body
@@ -85,14 +90,14 @@ void displayFrame(string title)
       //llegar al principio del frame
       gotoxy({2, 1 + i});
       //imprimir header
-      cout << colorANSI(header[i], 1, 192, 9);
+      cout << colorANSI(header.content[i], 1, 192, 9);
     }
 
     //imprimir body  <<el de en medio>>
     //pocisionar body justo abajo de header
     gotoxy({2, 5 + i});
     //imprimir body mide fullScreen.height - 11 de alto
-    cout << body[i];
+    cout << body.content[i];
 
     //imprimir footer <<el de abajo>>
     if (i < 5)
@@ -100,7 +105,7 @@ void displayFrame(string title)
       //llegar a los ultimos 6 renglones
       gotoxy({2, fullScreen.height - 6 + i});
       //imprimir footer
-      cout << footer[i];
+      cout << footer.content[i];
     }
   }
 

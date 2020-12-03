@@ -19,14 +19,44 @@ void displayCard(Player player, Point point)
     }
 }
 
-void callNumber(string text, int number, int duration)
+void callNumber(string text, IntVector vector, int index, int duration)
 {
     //limpia el input
     cleanFrameInput();
 
+    //hacer un marco para el banco de numeros
+    StringVector bankFrame = stringRectangle({30, 24}, 1);
+
+    //imprimir rectangulo frame <<el marco de todos los rectangulos>>
+    for (int i = 0; i < bankFrame.lineCount; i++)
+    {
+        gotoxy({112, 6 + i});
+        cout << bankFrame.content[i];
+    }
+
+    //titulo de la ventana
+    gotoxy({112 + 3, 6 + 2});
+    cout << colorANSI("Ya salieron: ", 1, 11, 256);
+
+    int col = 0;
+    int row = 0;
+    for (int i = 0; i < index + 1; i++)
+    {
+        if (col == 6)
+        {
+            col = 0;
+            row++;
+        }
+
+        gotoxy({112 + 3 + (4 * col), 7 + 3 + row});
+        cout << setw(4) << vector.content[i];
+
+        col++;
+    }
+
     //imprimir la llamada de numero en consola
     gotoxy({6, 33});
-    cout << colorANSI(string(text + to_string(number)), 1, 33, 256);
+    cout << colorANSI(string(text + to_string(vector.content[index])), 1, 33, 256);
 
     Sleep(duration);
 }
@@ -43,11 +73,11 @@ void displayCards(Player playerA, Player playerB)
     //mostar alias
     gotoxy({9, 8});
     cout << colorANSI(playerA.name.empty() ? "Jugador A" : playerA.name + " (Jugador A)", 1, 196, 256);
-    gotoxy({9 + 70, 8});
+    gotoxy({9 + 50, 8});
     cout << colorANSI(playerB.name.empty() ? "Jugador B" : playerB.name + " (Jugador B)", 1, 33, 256);
 
     displayCard(playerA, {9, 10});
-    displayCard(playerB, {70 + 9, 10});
+    displayCard(playerB, {50 + 9, 10});
 }
 
 void displayReport(Player player, Point point)
@@ -62,7 +92,7 @@ void displayReport(Player player, Point point)
         for (int j = 0; j < player.scored.width; j++)
             if (player.scored.content[i][j] != 0)
             {
-                if (k == 9)
+                if (k == 7)
                 {
                     k = 0;
                     l++;

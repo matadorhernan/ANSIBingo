@@ -4,9 +4,9 @@
 #include "../alias/aliasviews.h"
 
 void displayCard(Player player, Point point);
-void callNumber(string text, int number, int duration);
 void displayCards(Player playerA, Player playerB);
-void callPlayer(string text, Player player, int duration);
 void displayReport(Player player, Point point);
+void callNumber(string text, IntVector vector, int index, int duration);
+void callPlayer(string text, Player player, int duration);
 
 #endif

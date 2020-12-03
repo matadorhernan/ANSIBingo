@@ -103,7 +103,8 @@ BingoGame initBingo()
     for (int i = 0; i < menuFile.lineCount; i++)
     {
         game.menu.items[i].text = menuFile.content[i];
-        game.menu.items[i].enabled = i == 0 || i == 5;
+        // game.menu.items[i].enabled = i == 0 || i == 5;
+        game.menu.items[i].enabled = true;
 
         //estadisticas
         if (i == 4)
@@ -207,7 +208,10 @@ bool bingoCore(BingoGame &game)
             displayCards(game.players[0], game.players[1]);
 
             //presentar el numero que sale
-            callNumber("Salio el numero ", game.numbers.content[i], 50);
+            callNumber("Salio el numero ", game.numbers, i, 50);
+
+            //mostrar tarjetas
+            displayCards(game.players[0], game.players[1]);
 
             //revisar jugadores, 2 jugadores
             for (int j = 0; j < 2; j++)
@@ -225,12 +229,15 @@ bool bingoCore(BingoGame &game)
                 //limpiar frame body
                 cleanFrameBody();
 
+                //presentar el numero que sale
+                callNumber("Salio el numero ", game.numbers, i, 50);
+
                 //mostrar tarjetas
                 displayCards(game.players[0], game.players[1]);
 
                 //dar reporte de juego para cada jugador
                 for (int j = 0; j < 2; j++)
-                    displayReport(game.players[j], {6 + (j == 0 ? 0 : 70), 22});
+                    displayReport(game.players[j], {9 + (j == 0 ? 0 : 50), 22});
 
                 //output de felicitacion
                 callPlayer("Felicidades # !!!! Acumulaste: # puntos. #", game.players[pos], 4000);
@@ -248,10 +255,10 @@ bool bingoCore(BingoGame &game)
 
 void handleAlias(BingoGame &game)
 {
-    for (int i = 0; i < 4; i++)
-    {
-        game.menu.items[i + 1].enabled = true;
-    }
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     game.menu.items[i + 1].enabled = true;
+    // }
 
     for (int i = 0; i < 2; i++)
     {
