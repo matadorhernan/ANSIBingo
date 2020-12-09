@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <string>
 #include <string.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -10,6 +10,7 @@
 #include <climits>
 #include <cctype>
 #define REFRESH_RATE 200
+#define PAGE_LIMIT 20
 using namespace std;
 enum GameType
 {
@@ -66,6 +67,18 @@ struct Player
     int scoredCount;
     string timestamp;
 };
+struct Score
+{
+    string name;
+    string gameType;
+    string score;
+    string timestamp;
+};
+struct ScoreVector
+{
+    Score *score;
+    int itemCount;
+};
 struct BingoGame
 {
     string title;
@@ -88,7 +101,8 @@ IntVector getVectorFromRange(int min, int max);
 void getCardFromVector(StringMatrix &card, IntVector vector, int numbersPerColumn, int skip);
 StringVector readFile(string filename);
 void writeFile(string filename, StringVector content);
-void writeScoreData(string filename, Player player);
+ScoreVector readScoreData(string filename);
+void writeScoreData(string filename, Score score);
 //validators.h
 bool isInRange(int number, int min, int max);
 bool isDigits(string digits);
@@ -114,14 +128,16 @@ void displayCards(Player playerA, Player playerB);
 void displayReport(Player player, Point point);
 void callNumber(string text, IntVector vector, int index, int duration);
 void callPlayer(string text, Player player, int duration);
-//main file
+//leaderboardviews.h
+void displayStats(ScoreVector vector);
+//bingoCore.h
 BingoGame initBingo();
 bool bingoCore(BingoGame &game);
 void handleAlias(BingoGame &game);
 void handleCards(BingoGame &game);
+bool handleStats(BingoGame &game);
 bool searchCard(StringMatrix &card, int number, GameType gametype);
 bool checkPlayerVictory(Player &player, GameType gametype);
-void handleStats(BingoGame &game);
 //main
 int main(int argc, char const *argv[])
 {
@@ -210,6 +226,7 @@ StringVector readFile(string filename)
     StringVector fc;
     string str;
     fstream file(filename);
+    fc.lineCount = 0;
     if (file.is_open())
     {
         int i = 0;
@@ -232,7 +249,8 @@ StringVector readFile(string filename)
 void writeFile(string filename, StringVector content)
 {
     string str;
-    fstream file(filename);
+    fstream file;
+    file.open(filename, ios::app);
     if (file.is_open())
     {
         for (int i = 0; i < content.lineCount; i++)
@@ -240,8 +258,29 @@ void writeFile(string filename, StringVector content)
         file.close();
     }
 }
-void writeScoreData(string filename, Player player)
+ScoreVector readScoreData(string filename)
 {
+    ScoreVector scoreVector;
+    StringVector scoreData = readFile(filename);
+    scoreVector.itemCount = scoreData.lineCount;
+    scoreVector.score = new Score[scoreData.lineCount];
+    for (int i = 0; i < scoreData.lineCount; i++)
+    {
+        StringVector scoreToken = splitString("_", scoreData.content[i]);
+        scoreVector.score[i].name = scoreToken.content[0];
+        scoreVector.score[i].gameType = scoreToken.content[1];
+        scoreVector.score[i].score = scoreToken.content[2];
+        scoreVector.score[i].timestamp = scoreToken.content[3];
+    }
+    return scoreVector;
+}
+void writeScoreData(string filename, Score score)
+{
+    StringVector scoreData;
+    scoreData.lineCount = 1;
+    scoreData.content = new string[1];
+    scoreData.content[0] = score.name + "_" + score.gameType + "_" + score.score + "_" + score.timestamp + "_";
+    writeFile(filename, scoreData);
 }
 //vectorUtilities.cpp
 void shuffleIntVector(IntVector &vector)
@@ -555,7 +594,61 @@ void callPlayer(string text, Player player, int duration)
         1, 33, 256);
     system("pause");
 }
-//main.cpp file
+//leaderboardviews.cpp
+void displayStats(ScoreVector vector)
+{
+    cleanFrameBody();
+    StringVector nameRectangle = stringRectangle({36, 3}, 1);
+    StringVector gameTypeRectangle = stringRectangle({29, 3}, 1);
+    StringVector scoreRectangle = stringRectangle({19, 3}, 1);
+    StringVector dateRectangle = stringRectangle({55, 3}, 1);
+    for (int i = 0; i < nameRectangle.lineCount; i++)
+    {
+        gotoxy({4, 6 + i});
+        cout << nameRectangle.content[i];
+        gotoxy({40, 6 + i});
+        cout << gameTypeRectangle.content[i];
+        gotoxy({69, 6 + i});
+        cout << scoreRectangle.content[i];
+        gotoxy({88, 6 + i});
+        cout << dateRectangle.content[i];
+    }
+    gotoxy({6, 7});
+    cout << "Alias";
+    gotoxy({42, 7});
+    cout << "Modo";
+    gotoxy({71, 7});
+    cout << "Puntos";
+    gotoxy({90, 7});
+    cout << "Fecha";
+    int pages = (int)ceil((double)(((double)vector.itemCount) / ((double)PAGE_LIMIT)));
+    for (int i = 0; i < pages; i++)
+    {
+        for (int j = 0; j < PAGE_LIMIT && (i * PAGE_LIMIT) + j != vector.itemCount; j++)
+        {
+            gotoxy({6, 9 + j});
+            cout << vector.score[(i * PAGE_LIMIT) + j].name;
+            gotoxy({42, 9 + j});
+            cout << vector.score[(i * PAGE_LIMIT) + j].gameType;
+            gotoxy({71, 9 + j});
+            cout << vector.score[(i * PAGE_LIMIT) + j].score;
+            gotoxy({90, 9 + j});
+            cout << vector.score[(i * PAGE_LIMIT) + j].timestamp;
+        }
+        if (i != pages - 1)
+        {
+            cleanFrameInput();
+            gotoxy({6, 33});
+            cout << "Imprimiendo siguiente pagina...";
+            system("pause");
+        }
+    }
+    cleanFrameInput();
+    gotoxy({6, 33});
+    system("pause");
+}
+
+//bingoCore.cpp file
 BingoGame initBingo()
 {
     BingoGame game;
@@ -611,7 +704,9 @@ bool bingoCore(BingoGame &game)
         break;
     case 5:
     {
-        handleStats(game);
+        bool canSubRepeat = true;
+        while (canSubRepeat)
+            canSubRepeat = handleStats(game);
         break;
     }
     case 6:
@@ -620,6 +715,7 @@ bool bingoCore(BingoGame &game)
         break;
     }
     }
+
     if (isPlaying)
     {
         int pos;
@@ -635,12 +731,14 @@ bool bingoCore(BingoGame &game)
             displayCards(game.players[0], game.players[1]);
             for (int j = 0; j < 2; j++)
                 if ((found = searchCard(game.players[j].card, game.numbers.content[i], game.gameType)))
+                {
+                    game.players[j].scoredCount++;
                     if ((ended = checkPlayerVictory(game.players[j], game.gameType)))
                     {
                         pos = j;
                         break;
                     }
-
+                }
             if (ended)
             {
                 cleanFrameBody();
@@ -649,14 +747,19 @@ bool bingoCore(BingoGame &game)
                 for (int j = 0; j < 2; j++)
                     displayReport(game.players[j], {9 + (j == 0 ? 0 : 50), 22});
                 callPlayer("Felicidades # !!!! Acumulaste: # puntos. #", game.players[pos], 4000);
-                writeScoreData("data/leaderboard.txt", game.players[pos]);
+                Score score;
+                score.gameType = (game.gameType == 3 ? "Diagonal" : game.gameType == 2 ? "Carta Completa" : "Horizontal");
+                score.name = game.players[pos].name;
+                score.score = to_string(game.players[pos].score);
+                score.timestamp = game.players[pos].timestamp;
+                writeScoreData("data/leaderboard.txt", score);
                 break;
             }
         }
     }
     return canRepeat;
 }
-
+//handlers.cpp
 void handleAlias(BingoGame &game)
 {
     for (int i = 0; i < 4; i++)
@@ -671,7 +774,6 @@ void handleAlias(BingoGame &game)
                               : " B: ")));
     }
 }
-
 void handleCards(BingoGame &game)
 {
     game.numbers = getVectorFromRange(1, 100);
@@ -693,10 +795,99 @@ void handleCards(BingoGame &game)
             for (int k = 0; k < width; k++)
                 game.players[i].scored.content[j][k] = 0;
         }
+        game.players[i].scoredCount = 0;
+        game.players[i].score = 0;
         getCardFromVector(game.players[i].card, game.numbers, numbersPerColumn, i == 0 ? i : skip);
     }
 }
+bool handleStats(BingoGame &game)
+{
+    bool canSubRepeat = true;
+    bool isgameType = false;
+    GameType gameType;
+    ScoreVector scoreVector = readScoreData("data/leaderboard.txt");
+    displayMenu(game.menu.items[4]);
+    int selectedStats = stoi(
+        getQueryMenu(
+            game.menu.items[4]));
 
+    switch (selectedStats)
+    {
+    case 1:
+        if (scoreVector.itemCount == 0)
+        {
+            cleanFrameInput();
+            gotoxy({6, 33});
+            cout << "Aun no a ganado nadie...";
+            system("pause");
+            return true;
+        }
+        displayStats(scoreVector);
+        break;
+    case 2:
+    {
+        string aliasQuery = getQueryAlias("Nombre del jugador a buscar: ");
+        ScoreVector filterPlayer;
+        filterPlayer.score = new Score[scoreVector.itemCount];
+        filterPlayer.itemCount = 0;
+        for (int i = 0; i < scoreVector.itemCount; i++)
+            if (aliasQuery.compare(scoreVector.score[i].name) == 0)
+            {
+                filterPlayer.score[filterPlayer.itemCount] = scoreVector.score[i];
+                filterPlayer.itemCount++;
+            }
+        if (scoreVector.itemCount == 0 || filterPlayer.itemCount == 0)
+        {
+            cleanFrameInput();
+            gotoxy({6, 33});
+            cout << "Jugador no registrado...";
+            system("pause");
+            return true;
+        }
+        displayStats(filterPlayer);
+        break;
+    }
+    case 3:
+        isgameType = true;
+        gameType = kHorizontal;
+        break;
+    case 4:
+        isgameType = true;
+        gameType = kFullCard;
+        break;
+    case 5:
+        isgameType = true;
+        gameType = kMainDiagonal;
+        break;
+    case 6:
+        canSubRepeat = false;
+        break;
+    }
+    if (isgameType)
+    {
+        ScoreVector filterGameType;
+        string gameTypeQuery = (gameType == 3 ? "Diagonal" : gameType == 2 ? "Carta Completa" : "Horizontal");
+        filterGameType.score = new Score[scoreVector.itemCount];
+        filterGameType.itemCount = 0;
+        for (int i = 0; i < scoreVector.itemCount; i++)
+            if (gameTypeQuery.compare(scoreVector.score[i].gameType) == 0)
+            {
+                filterGameType.score[filterGameType.itemCount] = scoreVector.score[i];
+                filterGameType.itemCount++;
+            }
+        if (scoreVector.itemCount == 0 || filterGameType.itemCount == 0)
+        {
+            cleanFrameInput();
+            gotoxy({6, 33});
+            cout << "Nadie a ganado en modo " << gameTypeQuery << "...";
+            system("pause");
+            return true;
+        }
+        displayStats(filterGameType);
+    }
+    return canSubRepeat;
+}
+//card.cpp
 bool searchCard(StringMatrix &card, int number, GameType gametype)
 {
     bool found = false;
@@ -718,33 +909,33 @@ bool searchCard(StringMatrix &card, int number, GameType gametype)
     }
     return found;
 }
-
 bool checkPlayerVictory(Player &player, GameType gametype)
 {
     player.score = 0;
-    player.scoredCount = 0;
     player.timestamp = getTimeStamp();
     bool ended = false;
-    int scoredNumber, rscoredNumber, rscore, score, scoredrows, center;
-    scoredNumber = rscoredNumber = rscore = score = scoredrows = center = 0;
+    int scoredCount = 0;
+    int rscoredCount = 0;
+    int score = 0;
+    int rscore = 0;
+    int scoredrows = 0;
+    int center = 0;
     int ri = player.card.height - 1;
     for (int i = 0; i < player.card.height; i++)
     {
-        scoredNumber = (gametype != 3) ? 0 : scoredNumber;
+        scoredCount = (gametype != 3) ? 0 : scoredCount;
         player.score = (gametype == 1) ? 0 : player.score;
         for (int j = 0; j < player.card.width; j++)
         {
-            bool formatted = isFormatted(player.card.content[i][j]);
-            int number = getUnformattedANSINumber(player.card.content[i][j]);
-            if (formatted)
+            if ((isFormatted(player.card.content[i][j])))
             {
+                int number = getUnformattedANSINumber(player.card.content[i][j]);
                 if (gametype != 3)
                 {
-                    player.scoredCount++;
+                    scoredCount++;
                     player.score += number;
-                    player.scored.content[gametype == 2 ? i : 0][scoredNumber] = number;
-                    scoredNumber++;
-                    if (scoredNumber == player.scored.width)
+                    player.scored.content[gametype == 2 ? i : 0][scoredCount] = number;
+                    if (scoredCount == player.scored.width)
                         scoredrows++;
                     if ((ended = (scoredrows == player.scored.height)))
                         break;
@@ -753,32 +944,31 @@ bool checkPlayerVictory(Player &player, GameType gametype)
                 {
                     if (i == j && ri != i)
                     {
-                        player.scored.content[0][scoredNumber] = number;
+                        player.scored.content[0][scoredCount] = number;
                         score += number;
-                        scoredNumber++;
+                        scoredCount++;
                     }
                     else if (ri == j && ri != i)
                     {
-                        player.scored.content[1][rscoredNumber] = number;
+                        player.scored.content[1][rscoredCount] = number;
                         rscore += number;
-                        rscoredNumber++;
+                        rscoredCount++;
                     }
                     else if (ri == i && center == 0)
                     {
                         player.scored.content[2][0] = number;
                         center = number;
                     }
-                    player.scoredCount = rscoredNumber + scoredNumber + (center == 0 ? center : 1);
-                    if ((ended = (center == 0 && (rscoredNumber == player.scored.width ||
-                                                  scoredNumber == player.scored.width)) ||
-                                 (center != 0 && (rscoredNumber == player.scored.width - 1 ||
-                                                  scoredNumber == player.scored.width - 1))))
+                    if ((ended = (center == 0 && (scoredCount == player.scored.width ||
+                                                  rscoredCount == player.scored.width)) ||
+                                 (center != 0 && (scoredCount == player.scored.width - 1 ||
+                                                  rscoredCount == player.scored.width - 1))))
                     {
-                        if ((rscoredNumber == player.scored.width ||
-                             rscoredNumber == player.scored.width - 1))
-                            player.score = rscore + center;
-                        else
+                        if ((scoredCount == player.scored.width ||
+                             scoredCount == player.scored.width - 1))
                             player.score = score + center;
+                        else
+                            player.score = rscore + center;
                         break;
                     }
                 }
@@ -789,22 +979,4 @@ bool checkPlayerVictory(Player &player, GameType gametype)
             break;
     }
     return ended;
-}
-void handleStats(BingoGame &game)
-{
-    displayMenu(game.menu.items[4]);
-    int selectedStats = stoi(
-        getQueryMenu(
-            game.menu.items[4]));
-    switch (selectedStats)
-    {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-        break;
-    case 6:
-        break;
-    }
 }

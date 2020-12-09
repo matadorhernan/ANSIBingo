@@ -80,10 +80,10 @@ bool checkPlayerVictory(Player &player, GameType gametype)
 
                 if (gametype != 3)
                 {
+                    //aumentar aciertos
+                    scoredCount++;
 
-                    player.scoredCount++;
-
-                    //sumarlo a los puntos
+                    //sumar content[i][j] a los puntos
                     player.score += number;
 
                     //guardar en scored
