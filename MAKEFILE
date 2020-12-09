@@ -18,6 +18,10 @@ bingo:
     views/menu/menuviews.cpp \
     views/alias/aliasviews.cpp \
     views/card/cardviews.cpp \
+    views/leaderboard/leaderboardviews.cpp \
+    core/bingoCore.cpp \
+    core/handlers.cpp \
+    core/card.cpp \
     main.cpp \
     -o bingo \
     $(LDFLAGS) \

@@ -59,8 +59,8 @@ string getQueryAlias(string query)
         getline(cin, alias);
 
         //validar opcion
-        validAlias = !alias.empty() &&     //no puede estar vacia
-                     isAlias(alias, 4, 8); //necesita ser alias
+        validAlias = !alias.empty() &&      //no puede estar vacia
+                     isAlias(alias, 4, 12); //necesita ser alias
 
         //dar informacion al usuario
         if (!validAlias)

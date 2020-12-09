@@ -24,6 +24,7 @@ void getCardFromVector(StringMatrix &card, IntVector vector, int numbersPerColum
 //forward file utilities
 StringVector readFile(string filename);
 void writeFile(string filename, StringVector content);
-void writeScoreData(string filename, Player player);
+ScoreVector readScoreData(string filename);
+void writeScoreData(string filename, Score score);
 
 #endif

@@ -10,7 +10,7 @@
 #include <Windows.h>
 #include <string>   //getline
 #include <string.h> //stoi()
-#include <math.h>
+#include <cmath>    //ceil round
 #include <iostream>
 #include <iomanip> //setw()
 #include <fstream> //w r
@@ -19,6 +19,7 @@
 #include <cctype> //isspace
 
 #define REFRESH_RATE 200
+#define PAGE_LIMIT 20
 
 //namespaces
 using namespace std; //mala practica al importar el namespace std hacia el global namespace
@@ -114,6 +115,20 @@ struct Player
     int score;
     int scoredCount;
     string timestamp; //tiempo desde el sistema al ganar
+};
+
+struct Score
+{
+    string name;
+    string gameType;
+    string score;
+    string timestamp;
+};
+
+struct ScoreVector
+{
+    Score *score;
+    int itemCount;
 };
 
 /**

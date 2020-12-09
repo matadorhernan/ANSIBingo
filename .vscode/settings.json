@@ -4,6 +4,8 @@
         "iostream": "cpp",
         "string": "cpp",
         "iomanip": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "system_error": "cpp",
+        "xlocale": "cpp"
     }
 }
