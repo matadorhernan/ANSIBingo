@@ -139,12 +139,15 @@ bool bingoCore(BingoGame &game)
             for (int j = 0; j < 2; j++)
                 //revisar si tiene numero
                 if ((found = searchCard(game.players[j].card, game.numbers.content[i], game.gameType)))
+                {
+                    game.players[j].scoredCount++;
                     //revisar si gana
                     if ((ended = checkPlayerVictory(game.players[j], game.gameType)))
                     {
                         pos = j;
                         break;
                     }
+                }
 
             if (ended)
             {

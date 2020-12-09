@@ -51,6 +51,10 @@ void handleCards(BingoGame &game)
                 game.players[i].scored.content[j][k] = 0;
         }
 
+        //sin aciertos y sin puntos
+        game.players[i].scoredCount = 0;
+        game.players[i].score = 0;
+
         //obtener tarjetas de manera dinamica
         getCardFromVector(game.players[i].card, game.numbers, numbersPerColumn, i == 0 ? i : skip);
     }

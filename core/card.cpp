@@ -40,37 +40,43 @@ bool checkPlayerVictory(Player &player, GameType gametype)
 {
     //inicializar player
     player.score = 0;
-    player.scoredCount = 0;
     player.timestamp = getTimeStamp();
 
     //detectar ganador
     bool ended = false;
 
-    //cuantos aciertos
-    //cuantos puntos
-    //cuantas filas horizontales completa para cartas normales
-    //valor central para diagonales simetricas
-    int scoredNumber, rscoredNumber, rscore, score, scoredrows, center;
-    scoredNumber = rscoredNumber = rscore = score = scoredrows = center = 0;
+    //aciertos normal
+    int scoredCount = 0;
+    //aciertos diagonal secundaria
+    int rscoredCount = 0;
+    //puntos normal
+    int score = 0;
+    //puntos diagonal secundaria
+    int rscore = 0;
+    //lineas completadas
+    int scoredrows = 0;
+    //valor central para matrices con centros
+    int center = 0;
 
+    //para recorrer content al revez
     int ri = player.card.height - 1;
+
+    //recorrer content
     for (int i = 0; i < player.card.height; i++)
     {
         //si es modo diagonal mantener el valor
-        scoredNumber = (gametype != 3) ? 0 : scoredNumber;
-
+        scoredCount = (gametype != 3) ? 0 : scoredCount;
         //si es modo horizontal hacer 0
         player.score = (gametype == 1) ? 0 : player.score;
 
         for (int j = 0; j < player.card.width; j++)
         {
-            //ver si tiene color
-            bool formatted = isFormatted(player.card.content[i][j]);
-            int number = getUnformattedANSINumber(player.card.content[i][j]);
 
-            //tiene color
-            if (formatted)
+            //si tiene color el content[i][j]
+            if ((isFormatted(player.card.content[i][j])))
             {
+                //valor int de content[i][j]
+                int number = getUnformattedANSINumber(player.card.content[i][j]);
 
                 if (gametype != 3)
                 {
@@ -81,13 +87,10 @@ bool checkPlayerVictory(Player &player, GameType gametype)
                     player.score += number;
 
                     //guardar en scored
-                    player.scored.content[gametype == 2 ? i : 0][scoredNumber] = number;
-
-                    //avanzar numero de aciertos
-                    scoredNumber++;
+                    player.scored.content[gametype == 2 ? i : 0][scoredCount] = number;
 
                     //si ya tiene los aciertos que se ocupan en el renglon
-                    if (scoredNumber == player.scored.width)
+                    if (scoredCount == player.scored.width)
                         //aumentar el numero de renglones acertados
                         scoredrows++;
 
@@ -98,42 +101,48 @@ bool checkPlayerVictory(Player &player, GameType gametype)
                 else if (gametype == 3)
                 {
 
+                    //encontrado en diagonal primaria, no en centro
                     if (i == j && ri != i)
                     {
-                        //diagonales primarias; no centros
-                        player.scored.content[0][scoredNumber] = number;
+                        //registar coincidencia en diagonales primarias
+                        player.scored.content[0][scoredCount] = number;
+                        //sumar a la cuenta normal
                         score += number;
-                        scoredNumber++;
+                        //aumentar aciertos
+                        scoredCount++;
                     }
+                    //encontrado en diagonal secundaria, no en centro
                     else if (ri == j && ri != i)
                     {
-                        //diagonales secundarias; no centros
-                        player.scored.content[1][rscoredNumber] = number;
+                        //registar coincidencia en diagonales secundarias
+                        player.scored.content[1][rscoredCount] = number;
+                        //sumar a la cuenta secundaria
                         rscore += number;
-                        rscoredNumber++;
+                        //aumentar aciertos diagonal secundaria
+                        rscoredCount++;
                     }
+                    //encontrado en centro
                     else if (ri == i && center == 0)
                     {
-                        //centros
+                        //registar coincidencia en centros
                         player.scored.content[2][0] = number;
+                        //preparar para sumar valor del centro
                         center = number;
                     }
 
-                    //contar aciertos
-                    player.scoredCount = rscoredNumber + scoredNumber + (center == 0 ? center : 1);
-
-                    //reportar victoria
-                    if ((ended = (center == 0 && (rscoredNumber == player.scored.width ||
-                                                  scoredNumber == player.scored.width)) ||
-                                 (center != 0 && (rscoredNumber == player.scored.width - 1 ||
-                                                  scoredNumber == player.scored.width - 1))))
+                    //reportar victoria (en matrices con centros y sin centros) de diagonales principales o secundarias
+                    if ((ended = (center == 0 && (scoredCount == player.scored.width ||
+                                                  rscoredCount == player.scored.width)) ||
+                                 (center != 0 && (scoredCount == player.scored.width - 1 ||
+                                                  rscoredCount == player.scored.width - 1))))
                     {
-                        //hacer suma de puntos
-                        if ((rscoredNumber == player.scored.width ||
-                             rscoredNumber == player.scored.width - 1))
-                            player.score = rscore + center;
-                        else
+                        //hacer suma de puntos si gano con diagonal principal
+                        if ((scoredCount == player.scored.width ||
+                             scoredCount == player.scored.width - 1))
                             player.score = score + center;
+                        //hacer suma de puntos si gano con diagonal secundaria
+                        else
+                            player.score = rscore + center;
 
                         //dejar de hacer calculos si ya hay ganador
                         break;
@@ -142,12 +151,14 @@ bool checkPlayerVictory(Player &player, GameType gametype)
             }
         }
 
+        //avanzar anti i
         ri--;
 
-        //si solo se ganan tantas filas como se ocupan ganar juego
+        //dejar de hacer calculos si ya hay ganador
         if (ended)
             break;
     }
 
+    //reportar si gano
     return ended;
 }
