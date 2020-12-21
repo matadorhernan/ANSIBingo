@@ -280,7 +280,7 @@ IntVector getVectorFromRange(int min, int max)
     IntVector vector;
     if (max - min > 1)
     {
-        vector = {max - min + 1, new int[max - min]};
+        vector = {max - min + 1, new int[max - min + 1]};
         for (int i = 0; i < max - min + 1; i++)
             vector.content[i] = min + i;
     }
@@ -643,7 +643,7 @@ bool bingoCore(BingoGame &game)
         handleCards(game);
         shuffleIntVector(game.numbers);
         bool found = false, ended = false;
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 99; i++)
         {
             cleanView({3, 6}, {144, 30});
             displayCards(game.players[0], game.players[1]);
@@ -691,7 +691,7 @@ void handleAlias(BingoGame &game)
 }
 void handleCards(BingoGame &game)
 {
-    game.numbers = getVectorFromRange(1, 100);
+    game.numbers = getVectorFromRange(1, 99);
     shuffleIntVector(game.numbers);
     int randomDimension = rand() % (6 - 3 + 1) + 3;
     int numbersPerColumn = game.gameType == 3 ? randomDimension : game.gameType == 2 ? 9 : 5;
